@@ -1,5 +1,4 @@
-from functions import take_input
-
+from functions.take_input import take_input
 
 result = take_input()
 

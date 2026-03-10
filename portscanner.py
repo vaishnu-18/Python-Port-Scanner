@@ -4,13 +4,13 @@ from functions import iteration, socket_connection,store_to_file,take_input,vali
 #file: portscanner.py
 def portscanner():
 
-    scan_input: tuple[str,List[int]] = take_input()
+    scan_input: tuple[str,str] = take_input()
 
-    validate_input(scan_input)
+    validated_input: tuple[str,List[int]] = validate_input(scan_input)
 
-    scan_result: tuple[int,bool] = iteration(scan_input)
+    scan_result: tuple[int,bool] = iteration(validated_input)
 
-    ip_address = scan_input[0]
+    ip_address = validated_input[0]
 
     store_to_file(ip_address, scan_result)
 
