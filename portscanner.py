@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from functions import port_scanner, socket_connection,store_to_file,take_input,validate_input,write_to_console
+from functions import iteration, socket_connection,store_to_file,take_input,validate_input,write_to_console
 
 #file: portscanner.py
 def portscanner():
@@ -8,7 +8,7 @@ def portscanner():
 
     validate_input(scan_input)
 
-    scan_result: tuple[int,bool] = port_scanner(scan_input)
+    scan_result: tuple[int,bool] = iteration(scan_input)
 
     ip_address = scan_input[0]
 
