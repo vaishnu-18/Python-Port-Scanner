@@ -9,3 +9,5 @@ def take_input() -> tuple[str,str]:
     ports = input("Enter the port range: ")
     #Return the result
     return ip_address, ports
+
+
