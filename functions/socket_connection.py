@@ -2,12 +2,6 @@ from typing import List, Tuple
 import socket
 import logging
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
 def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
     """
         Attempts to connect to a single TCP port
@@ -36,8 +30,8 @@ def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
             is_open: bool = (result == 0)
 
             # Logging the attempt
-            if is_open: logging.info(f"finished scanning {ip_address} : {port} - port open") 
-            else: logging.info(f"finished scanning {ip_address} : {port} - port closed")
+            if is_open: logging.debug(f"finished scanning {ip_address} : {port} - port open") 
+            else: logging.debug(f"finished scanning {ip_address} : {port} - port closed")
 
             port_status = (port,is_open)
 
