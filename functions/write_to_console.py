@@ -2,10 +2,12 @@ from typing import List, Tuple  # For type hints
 
 def write_to_console(ip_address: str, scan_result: List[Tuple[int, bool]]):
     """
+    Declaring a function
     Prints a formatted table of port scan results to the console.
     Each result is a tuple: (port:int, status:bool)
     True  -> OPEN
     False -> CLOSED
+
     """
     
     # Print header
