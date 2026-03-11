@@ -28,6 +28,7 @@ def write_to_console(ip_address: str, scan_result: List[Tuple[int, bool]]):
         print(f"{ip_address:<15}{port:<10}{state}")
 
 
+"""
 # Example usage
 ip_address = "192.168.1.1"
 scan_results = [
@@ -38,3 +39,4 @@ scan_results = [
 
 # Call the function
 write_to_console(ip_address, scan_results)
+"""
