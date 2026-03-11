@@ -8,7 +8,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def socket_connection(ip_address: str, port: int) -> bool:
+def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
     """
         Attempts to connect to a single TCP port
 
@@ -30,33 +30,35 @@ def socket_connection(ip_address: str, port: int) -> bool:
     try:
             # Try to connect to a specified port on a specified ip address
             # Returns an integer, 0 = success, otherwise => error code
-            logging.info(f"scanning {ip_address} : {port} ...")
-
             result = sock.connect_ex((ip_address, port))
 
             # We check the result, if it's 0 the port is open, otherwise it is closed
             is_open: bool = (result == 0)
 
-            #print("attempt succeeded")
-            if is_open: logging.info("finished - port open") 
-            else: logging.info("finished - port closed")
-            
+            # Logging the attempt
+            if is_open: logging.info(f"finished scanning {ip_address} : {port} - port open") 
+            else: logging.info(f"finished scanning {ip_address} : {port} - port closed")
 
-            return is_open
+            port_status = (port,is_open)
+
+            return port_status
     
-    # Exception - Name resoltuion failed
+    # Exception - Name resolution failed
     except socket.gaierror:
             logging.debug("aborted - name resolution failed")
-            return False
+            port_status = (port,False)
+            return port_status
     
     # Exception - Network/socket error
     except OSError:
             logging.debug("aborted - network/socket error")
-            return False
+            port_status = (port,False)
+            return port_status
     finally:
             sock.close()
 
 
+# Testing
 #is_open = socket_connection("192.168.56.101",22)
 #print(is_open)
 

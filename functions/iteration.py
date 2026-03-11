@@ -1,5 +1,9 @@
 from typing import List, Tuple
-from socket_connection import socket_connection
+from .socket_connection import socket_connection
+import time
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,7 +12,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def iteration(scan_input: tuple[str,List[int]]) -> List[tuple[int,bool]]:
+def iteration(ip_address: str, ports: List[int]) -> List[tuple[int,bool]]:
     """
         Loops through a list of ports and attempts to connect to each of them on the
         specified IP address
@@ -23,35 +27,27 @@ def iteration(scan_input: tuple[str,List[int]]) -> List[tuple[int,bool]]:
                 A port (int)
                 Whether the port is open or not (bool)
     """
-    
-    #Gather the ip address
-    ip_address: str = scan_input[0]
-
-    #Gather the list of ports to scan
-    input_port_list: List[int] = scan_input[1]
 
     #Create the scan result output list (empty at first)
     output_port_list: List[tuple[int,bool]] = []
 
-    logging.info(f"starting port scan on address {ip_address} and range {input_port_list[0]} - {input_port_list[-1]}")
+    logging.info(f"starting port scan on address {ip_address} and range {ports[0]} - {ports[-1]}")
 
-    #Loop through the list of ports
-    for port in input_port_list:
-        # Try to connect to the port on the specified ip address
-        # Gather the result (true/false)
-        is_open: bool = socket_connection(ip_address, port)
+    start_time = time.time()
 
-        #Store the scanned port and the result of the scan in a single variable
-        port_status: tuple[int,bool] = (port,is_open)
+    # max_workers=100: one thread per host — optimal for 100 small IO tasks
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        output_port_list = list(executor.map(socket_connection, repeat(ip_address), ports))
+    # executor.map preserves ORDER — results match the order of hostnames
 
-        #Add the result to the output list
-        output_port_list.append(port_status)
+    elapsed_time = time.time() - start_time
 
-    logging.info(f"port scan finished!")
+    logging.info(f"port scan finished in {elapsed_time:.5} seconds!")
 
     return output_port_list
 
 
-test = ("192.168.56.101",[0,22,23,60])
-result = iteration(test)
-print(result)
+# Testing
+
+#result = iteration("192.168.56.101",[0,22,23,60])
+#print(result)

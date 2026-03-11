@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from validate_input import validate_ip, validate_port
+from .validate_input import validate_ip, validate_port
 
 #Ask the user to enter an ip address
 def get_ip() -> str:
@@ -56,7 +56,7 @@ def get_port() -> List[int]:
                 end_port = input(f"{e} Please enter a valid ending port : ")
                 range_port = f"{start_port}-{end_port}"
 
-def take_inputs() -> Tuple[str, List[int]]:
+def take_input() -> Tuple[str, List[int]]:
     """
     Collect IP address and port(s) inputs from the user.
 
