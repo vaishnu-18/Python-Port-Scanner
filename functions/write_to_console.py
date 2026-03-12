@@ -51,17 +51,17 @@ def write_to_console(ip_address: str, scan_result: List[Tuple[int, bool]]):
         common = common_ports.get(port, "No")
 
         print(f"{ip_address:<15}{port:<10}{state:<10}{common}")
+if __name__ == "__main__":
+    # Example usage
+    ip_address = "192.168.1.1"
+    scan_results = [
+        (21, True),
+        (22, False),
+        (23, False),
+        (80, True),
+        (8761, False),
+        (26, True)
+    ]
 
-# Example usage
-ip_address = "192.168.1.1"
-scan_results = [
-    (21, True),
-    (22, False),
-    (23, False),
-    (80, True),
-    (8761, False),
-    (26, True)
-]
-
-# Call the function
-write_to_console(ip_address, scan_results)
+    # Call the function
+    write_to_console(ip_address, scan_results)
