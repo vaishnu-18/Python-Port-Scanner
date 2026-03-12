@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from typing import List
+import re
 
 def validate_port(input_port: str) -> List[int]:
     """
@@ -118,6 +119,24 @@ def validate_ip(ip_address: str) -> str:
             raise ValueError("IP ERROR: Octets must be between 0 and 255 !")
     
     return ip_address
+
+def validate_filename(filename: str) -> str:
+    """
+    Validate output filename.
+
+    Only allows letters, numbers, underscores, dashes.
+    Must end with .json
+    """
+
+    filename = filename.strip()
+
+    if not filename.endswith(".json"):
+        raise ValueError("FILE ERROR: Output file must end with .json")
+
+    if not re.match(r'^[A-Za-z0-9_\-\.]+$', filename):
+        raise ValueError("FILE ERROR: Filename contains invalid characters")
+
+    return filename
 
 #-----------------TEST------------------
 if __name__ == "__main__":

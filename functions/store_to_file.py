@@ -1,7 +1,7 @@
 import json
 from typing import List, Tuple
 
-def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename: str = "scan_results.json"):
+def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename: str):
     """
     Declaring the function
     Stores port scan results in a JSON file.
