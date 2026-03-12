@@ -1,7 +1,7 @@
 from typing import List, Tuple
-from .validate_input import validate_ip, validate_port
+from .validate_input import validate_ip, validate_port, validate_port_range #uncomment before pushing !
+#from validate_input import validate_ip, validate_port, validate_port_range #for testing
 
-#Ask the user to enter an ip address
 def get_ip() -> str:
     """
     Prompt the user to enter an IP address and validate it.
@@ -10,51 +10,81 @@ def get_ip() -> str:
     Returns:
         str: A valid IP address.
     """
-
-    ip = input("Enter an IP address : ")
+    
+    ip = input("Enter an IP address : ").strip()
+    
     while True:
         try:
             validate_ip(ip)
             return ip
         except ValueError as e:
-            ip = input(f"{e} Please Enter a valid IP address : ")
+            ip = input(f"{e} Please Enter a valid IP address : ").strip()
 
 def get_port() -> List[int]:
     """
     Ask the user whether to scan a single port or a range of ports.
-    For a single port, validate and return as a list with one integer.
-    For a range, validate both ends and return as a list of all ports in the range.
 
     Returns:
         List[int]: List of ports to scan.
     """
-    choice = input("Do you want to scan a single port or a range ? (Enter 'single' or 'range') : ").strip().lower()
     
-    while choice not in ("single", "range"):
-        choice = input("Invalid choice. Please enter 'single' or 'range' : ").strip().lower()
+    choice = input("Scan a range of ports ? (y/n) : ").strip().lower()
     
-    if choice == "single":
-        single_port = input("Enter a port number : ").strip()
+    while choice not in ("yes", "y", "no", "n"):
+        print("You can only type 'yes/no' or 'y/n'.")
+        choice = input("Scan a range of ports ? ").strip().lower()
+    
+    # SINGLE PORT
+    if choice in ("no", "n"):
+        
+        single_port = input("Port n° : ").strip()
+        
         while True:
             try:
-                single_port_int = validate_port(single_port)
-                return single_port_int
+                return validate_port(single_port)
             except ValueError as e:
-                single_port = input(f"{e} Please enter a valid port : ")
+                single_port = input(f"{e} - Please enter a valid port : ").strip()
 
-    elif choice == "range":
-        start_port = input("Enter the first port : ").strip()
-        end_port = input("Enter the last port : ").strip()
-        range_port = f"{start_port}-{end_port}"
+    # RANGE OF PORTS
+    elif choice in ("yes", "y"):
+        
+        MAX_LENGTH = 100
+        
+        start_port = input("Starting port : ").strip()
+        end_port = input("Ending port : ").strip()
 
         while True:
             try:
-                range_port_int = validate_port(range_port)
-                return range_port_int
+                ports = validate_port_range(f"{start_port}-{end_port}")
+                
+                #check if the list is too large
+                if len(ports) > MAX_LENGTH:
+                    
+                    print(f"WARNING : This range contains {len(ports)} ports.")
+                    print(f"Recommended maximum is {MAX_LENGTH}.")
+
+                    #Ask user if they want to continue
+                    while True:
+                        continue_choice = input("Continue anyway ? (y/n): ").strip().lower()
+
+                        if continue_choice in ("y", "yes"):
+                            return ports
+                        
+                        elif continue_choice in ("n", "no"):
+                            print("Please enter a smaller range.")
+                            start_port = input("Starting port : ").strip()
+                            end_port = input("Ending port : ").strip()
+                            break
+                        
+                        else:
+                            print("You can only type 'yes/no' or 'y/n'.")
+                else:
+                    return ports
+                
             except ValueError as e:
-                start_port = input(f"{e} Please enter a valid starting port : ")
-                end_port = input(f"{e} Please enter a valid ending port : ")
-                range_port = f"{start_port}-{end_port}"
+                print(f"{e} Please enter valid ports :")
+                start_port = input("Starting port : ").strip()
+                end_port = input("Ending port : ").strip()
 
 def take_input() -> Tuple[str, List[int]]:
     """
@@ -66,3 +96,6 @@ def take_input() -> Tuple[str, List[int]]:
     ip = get_ip()
     port = get_port()
     return ip, port
+
+if __name__ == "__main__":
+    print(take_input()) #only for testing
