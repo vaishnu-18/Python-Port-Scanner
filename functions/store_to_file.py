@@ -27,7 +27,7 @@ def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename
     with open(filename, "w") as file:
         json.dump(data, file, indent=4)
 
-
+'''
 # Example usage
 ip_address = "192.168.1.1"
 results = [
@@ -38,3 +38,4 @@ results = [
 
 # Save results to JSON
 store_to_file(ip_address, results, "scan_results.json")
+'''
