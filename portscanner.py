@@ -18,7 +18,7 @@ def portscanner(ip_address: str, ports: List[int]): #Focus does the scanning
 
     #Configure Threads and Rate Limiting
     max_threads = 100
-    max_connections_per_sec = 10.0
+    max_connections_per_sec = 100.0
 
     scan_result: List[tuple[int,bool]] = scan_iterator(ip_address, ports, max_threads, max_connections_per_sec)
 
