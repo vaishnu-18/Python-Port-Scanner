@@ -10,12 +10,13 @@ import argparse
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    force=True,
 )
 
-def portscanner(ip_address: str, ports: List[int], max_threads: int, max_connections_per_sec: float, output_file: str):
+def portscanner(ip_address: str, ports: List[int], max_threads: int, max_connections_per_sec: float, output_file: str, timeout: float):
 
-    scan_result: List[tuple[int,bool]] = scan_iterator(ip_address, ports, max_threads, max_connections_per_sec)
+    scan_result: List[tuple[int,bool]] = scan_iterator(ip_address, ports, max_threads, max_connections_per_sec, timeout)
 
     #Writes the scan results to the console
     write_to_console(ip_address, scan_result)
@@ -76,7 +77,9 @@ def main():
 
     max_threads = args.threads
     max_connections_per_sec = args.rate
-    
+    output_file = validate_filename(args.output)
+    timeout = args.timeout
+
     # If CLI args not provided → interactive mode
     if not args.target or not args.ports:
         ip_address, ports = take_input()
@@ -88,14 +91,15 @@ def main():
                 ports = validate_port_range(args.ports)
             except ValueError:
                 ports = validate_port(args.ports)
+            
 
-            output_file = validate_filename(args.output)
+            
 
         except ValueError as e:
             print(f"{e}")
             exit(1)
     
-    portscanner(ip_address, ports, max_threads, max_connections_per_sec, output_file)
+    portscanner(ip_address, ports, max_threads, max_connections_per_sec, output_file, timeout)
 
 if __name__ == "__main__":
     main()

@@ -60,7 +60,7 @@ class RateLimiter:
                 time.monotonic()
             )
 
-def scan_port(ip: str, port: int, limiter: RateLimiter) -> bool:
+def scan_port(ip: str, port: int, limiter: RateLimiter, timeout: float) -> bool:
     """
         Tries to connect to an ip address:port
 
@@ -71,9 +71,9 @@ def scan_port(ip: str, port: int, limiter: RateLimiter) -> bool:
         True if the port is open, False otherwise
     """
     limiter.wait()
-    return socket_connection(ip, port)
+    return socket_connection(ip, port, timeout)
 
-def scan_iterator(ip_address: str, ports: List[int], max_threads: int, max_connections_per_sec: int) -> List[tuple[int,bool]]:
+def scan_iterator(ip_address: str, ports: List[int], max_threads: int, max_connections_per_sec: int, timeout: float) -> List[tuple[int,bool]]:
     """
         Loops through a list of ports and attempts to connect to each of them on the
         specified IP address
@@ -104,7 +104,7 @@ def scan_iterator(ip_address: str, ports: List[int], max_threads: int, max_conne
     # Use multiple worker threads for concurrent port scans
     # executor.map preserves the order of ports initially provided
     with ThreadPoolExecutor(max_workers=max_threads) as executor:
-        output_port_list = list(executor.map(scan_port, repeat(ip_address), ports, repeat(rate_limiter)))
+        output_port_list = list(executor.map(scan_port, repeat(ip_address), ports, repeat(rate_limiter), repeat(timeout)))
    
     elapsed_time = time.time() - start_time
     logging.info(f"port scan finished in {elapsed_time:.5} seconds!")
@@ -112,6 +112,3 @@ def scan_iterator(ip_address: str, ports: List[int], max_threads: int, max_conne
     return output_port_list
 
 
-# Testing
-#result = scan_iterator("192.168.56.101",[0,22,23,60],100,10)
-#print(result)

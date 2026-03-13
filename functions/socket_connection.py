@@ -2,7 +2,7 @@ from typing import List, Tuple
 import socket
 import logging
 
-def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
+def socket_connection(ip_address: str, port: int, timeout: float) -> tuple[int,bool]:
     """
         Attempts to connect to a single TCP port
 
@@ -18,7 +18,7 @@ def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Sets a timeout after which the accempt is interrupted
-    sock.settimeout(1)
+    sock.settimeout(timeout)
 
     # Do a "try" to handle exceptions raised during the connection attempt
     try:
@@ -52,9 +52,6 @@ def socket_connection(ip_address: str, port: int) -> tuple[int,bool]:
             sock.close()
 
 
-# Testing
-#is_open = socket_connection("192.168.56.101",22)
-#print(is_open)
 
 
 
