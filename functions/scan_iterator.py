@@ -1,3 +1,14 @@
+"""
+scan_iterator.py
+
+Responsible for iterating over a list of ports and scanning them concurrently.
+
+Features:
+- Uses ThreadPoolExecutor for multithreading.
+- Supports rate limiting (max connections per second).
+- Returns a list of tuples (port, is_open).
+"""
+
 from typing import List, Tuple
 from .socket_connection import socket_connection
 import time
@@ -6,109 +17,104 @@ from itertools import repeat
 from threading import Lock
 import logging
 
-# A rate limiter object will be shared between all threads
-# It keeps a timer and only allows a certain amount of threads to run per second
+# -----------------------------
+# Rate limiter class
+# -----------------------------
 class RateLimiter:
     """
-    Shared thread-safe rate limiter.
+    Thread-safe rate limiter to control the number of scans per second.
 
-    rate = number of scan attempts allowed per second globally.
+    Attributes:
+        interval (float): Minimum time (in seconds) between scan attempts.
+        lock (Lock): Ensures only one thread updates next_allowed_time at a time.
+        next_allowed_time (float): Monotonic time for the next allowed scan.
+
     Example:
-        rate = 5.0  -> about 1 scan every 0.2 seconds total
-        rate = 10.0 -> about 1 scan every 0.1 seconds total
+        rate_limiter = RateLimiter(rate=10.0)  # 10 scans/sec max
+        rate_limiter.wait()  # wait until allowed to scan
     """
 
     def __init__(self, rate: float) -> None:
-
-        # Prevent invalid configuration (cannot have zero or negative rate)
         if rate <= 0:
-            raise ValueError("rate must be greater than 0")
+            raise ValueError("Rate must be greater than 0")
 
-        # Time interval required between two scan attempts
-        # Example: rate = 5 -> interval = 0.2 seconds
         self.interval = 1.0 / rate
-
-        # Lock ensures that only one thread updates the limiter at a time
-        # Without this, multiple threads could start scans simultaneously
         self.lock = Lock()
-
-        # The earliest time when the next scan attempt is allowed
-        # Using monotonic time avoids issues if the system clock changes
         self.next_allowed_time = time.monotonic()
 
-    # The wait function will be called by each thread
-    # This will force them to sleep for a certain amount of time before executing,
-    # To ensure rate limiting
     def wait(self) -> None:
-
-        # Only one thread can execute this block at a time
-        # This guarantees correct global rate limiting
+        """
+        Waits until the next allowed scan time according to rate limit.
+        Ensures all threads respect the global rate limit.
+        """
         with self.lock:
-
-            # Get the current monotonic time
             now = time.monotonic()
-
-            # If we are too early, wait until the next allowed scan time
             if now < self.next_allowed_time:
                 time.sleep(self.next_allowed_time - now)
+            # Schedule next allowed time
+            self.next_allowed_time = max(self.next_allowed_time + self.interval, time.monotonic())
 
-            # Schedule the next allowed scan time
-            # max() ensures that if the system is already behind schedule,
-            # we don't accumulate unnecessary delays
-            self.next_allowed_time = max(
-                self.next_allowed_time + self.interval,
-                time.monotonic()
-            )
-
-def scan_port(ip: str, port: int, limiter: RateLimiter, timeout: float) -> bool:
+# -----------------------------
+# Single port scan
+# -----------------------------
+def scan_port(ip: str, port: int, limiter: RateLimiter, timeout: float) -> Tuple[int, bool]:
     """
-        Tries to connect to an ip address:port
+    Scans a single TCP port on a target IP, respecting rate limits.
 
-        A rate limiter prevents it from running 
-        more than a specified amount of times per second
+    Args:
+        ip (str): Target IP address.
+        port (int): Target port number.
+        limiter (RateLimiter): Shared rate limiter instance.
+        timeout (float): Socket timeout in seconds.
 
-        Output:
-        True if the port is open, False otherwise
+    Returns:
+        Tuple[int, bool]: (port, True if open, False if closed)
     """
-    limiter.wait()
+    limiter.wait()  # enforce global rate limit
     return socket_connection(ip, port, timeout)
 
-def scan_iterator(ip_address: str, ports: List[int], max_threads: int, max_connections_per_sec: int, timeout: float) -> List[tuple[int,bool]]:
-    """
-        Loops through a list of ports and attempts to connect to each of them on the
-        specified IP address
 
-        Inputs:
-            An IP address
-            A list of ports to check
-            The maximum threads that can be ran simultaneously
-            The maximum connections allowed per second
-
-        Output:
-            A list of tuples composed of:
-                A port
-                Whether the port is open or not (true/false)
+# -----------------------------
+# Main scan iterator
+# -----------------------------
+def scan_iterator(ip_address: str,
+                  ports: List[int],
+                  max_threads: int,
+                  max_connections_per_sec: float,
+                  timeout: float) -> List[Tuple[int, bool]]:
     """
-    # Check if at least one port was provided
+    Loops through a list of ports and attempts to connect to each of them on the specified IP address.
+
+    Args:
+        ip_address (str): Target IP address.
+        ports (List[int]): List of ports to scan.
+        max_threads (int): Maximum concurrent threads.
+        max_connections_per_sec (float): Max total connection attempts per second.
+        timeout (float): Socket timeout in seconds.
+
+    Returns:
+        List[Tuple[int, bool]]: List of (port, status) tuples where status=True if port is open.
+    """
     if not ports:
         return []
 
-    # Create the scan result output list (empty at first)
-    output_port_list: List[tuple[int,bool]] = []
+    logging.info(
+        f"Starting port scan on {ip_address} ports {ports[0]}-{ports[-1]} "
+        f"with max threads: {max_threads}, max connections/sec: {max_connections_per_sec}"
+    )
 
-    logging.info(f"starting port scan on address {ip_address} and range {ports[0]} - {ports[-1]} "
-                 f"with max threads: {max_threads}, and max connections/sec: {max_connections_per_sec}")
     start_time = time.time()
     rate_limiter = RateLimiter(max_connections_per_sec)
 
-    # Use multiple worker threads for concurrent port scans
-    # executor.map preserves the order of ports initially provided
+    # Use ThreadPoolExecutor to scan ports concurrently
     with ThreadPoolExecutor(max_workers=max_threads) as executor:
-        output_port_list = list(executor.map(scan_port, repeat(ip_address), ports, repeat(rate_limiter), repeat(timeout)))
-   
+        # repeat(ip_address) and repeat(timeout) create a value for each port
+        # executor.map preserves port order in results
+        output_port_list: List[Tuple[int, bool]] = list(
+            executor.map(scan_port, repeat(ip_address), ports, repeat(rate_limiter), repeat(timeout))
+        )
+
     elapsed_time = time.time() - start_time
-    logging.info(f"port scan finished in {elapsed_time:.5} seconds!")
+    logging.info(f"Port scan finished in {elapsed_time:.5f} seconds")
 
     return output_port_list
-
-

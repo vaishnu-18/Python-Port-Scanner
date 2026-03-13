@@ -1,21 +1,38 @@
+"""
+store_to_file.py
+
+Handles storing port scan results to a JSON file.
+
+Features:
+- Converts a list of tuples (port, status) into a JSON list of dictionaries.
+- Each dictionary contains: IP address, port number, and status ("OPEN"/"CLOSED").
+- Indented JSON for readability.
+"""
+
 import json
 from typing import List, Tuple
 
-def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename: str):
+# -----------------------------
+# Store scan results to JSON
+# -----------------------------
+def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename: str) -> None:
     """
-    Declaring the function
     Stores port scan results in a JSON file.
-    
-    Parameters:
-    - ip_address: str -> The IP address scanned
-    - scan_result: List of tuples (port:int, status:bool)
-      True  -> OPEN
-      False -> CLOSED
-    - filename: Name of the JSON file to save results (default: "scan_results.json")
-    """
 
-    # Convert the list of tuples into a list of dictionaries
+    Args:
+        ip_address (str): The scanned IP address.
+        scan_result (List[Tuple[int, bool]]): List of (port, status) tuples.
+        filename (str): Output JSON file name.
+
+    Returns:
+        None
+
+    Example:
+        store_to_file("192.168.1.1", [(21, True), (22, False)], "results.json")
+    """
     data = []
+
+    # Convert tuple list to list of dictionaries for JSON
     for port, status in scan_result:
         data.append({
             "ip": ip_address,
@@ -23,19 +40,20 @@ def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename
             "status": "OPEN" if status else "CLOSED"
         })
 
-    # Write the data to JSON file with indentation for readability
+    # Write to file
     with open(filename, "w") as file:
         json.dump(data, file, indent=4)
 
-'''
+# -----------------------------
 # Example usage
-ip_address = "192.168.1.1"
-results = [
-    (21, True),
-    (22, False),
-    (23, False)
-]
-
-# Save results to JSON
-store_to_file(ip_address, results, "scan_results.json")
-'''
+# -----------------------------
+if __name__ == "__main__":
+    ip_address = "192.168.1.1"
+    results = [
+        (21, True),
+        (22, False),
+        (23, False),
+        (80, True)
+    ]
+    store_to_file(ip_address, results, "scan_results.json")
+    print("Scan results saved to scan_results.json")
