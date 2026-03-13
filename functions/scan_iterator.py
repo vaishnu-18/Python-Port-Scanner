@@ -3,7 +3,7 @@ scan_iterator.py
 
 Responsible for iterating over a list of ports and scanning them concurrently.
 
-Features:
+Features :
 - Uses ThreadPoolExecutor for multithreading.
 - Supports rate limiting (max connections per second).
 - Returns a list of tuples (port, is_open).
@@ -24,12 +24,12 @@ class RateLimiter:
     """
     Thread-safe rate limiter to control the number of scans per second.
 
-    Attributes:
-        interval (float): Minimum time (in seconds) between scan attempts.
-        lock (Lock): Ensures only one thread updates next_allowed_time at a time.
-        next_allowed_time (float): Monotonic time for the next allowed scan.
+    Attributes :
+        interval (float) : Minimum time (in seconds) between scan attempts.
+        lock (Lock) : Ensures only one thread updates next_allowed_time at a time.
+        next_allowed_time (float) : Monotonic time for the next allowed scan.
 
-    Example:
+    Example :
         rate_limiter = RateLimiter(rate=10.0)  # 10 scans/sec max
         rate_limiter.wait()  # wait until allowed to scan
     """
@@ -61,14 +61,14 @@ def scan_port(ip: str, port: int, limiter: RateLimiter, timeout: float) -> Tuple
     """
     Scans a single TCP port on a target IP, respecting rate limits.
 
-    Args:
-        ip (str): Target IP address.
-        port (int): Target port number.
-        limiter (RateLimiter): Shared rate limiter instance.
-        timeout (float): Socket timeout in seconds.
+    Args :
+        ip (str) : Target IP address.
+        port (int) : Target port number.
+        limiter (RateLimiter) : Shared rate limiter instance.
+        timeout (float) : Socket timeout in seconds.
 
-    Returns:
-        Tuple[int, bool]: (port, True if open, False if closed)
+    Returns :
+        Tuple[int, bool] : (port, True if open, False if closed)
     """
     limiter.wait()  # enforce global rate limit
     return socket_connection(ip, port, timeout)
@@ -85,15 +85,15 @@ def scan_iterator(ip_address: str,
     """
     Loops through a list of ports and attempts to connect to each of them on the specified IP address.
 
-    Args:
-        ip_address (str): Target IP address.
-        ports (List[int]): List of ports to scan.
-        max_threads (int): Maximum concurrent threads.
-        max_connections_per_sec (float): Max total connection attempts per second.
-        timeout (float): Socket timeout in seconds.
+    Args :
+        ip_address (str) : Target IP address.
+        ports (List[int]) : List of ports to scan.
+        max_threads (int) : Maximum concurrent threads.
+        max_connections_per_sec (float) : Max total connection attempts per second.
+        timeout (float) : Socket timeout in seconds.
 
     Returns:
-        List[Tuple[int, bool]]: List of (port, status) tuples where status=True if port is open.
+        List[Tuple[int, bool]] : List of (port, status) tuples where status=True if port is open.
     """
     if not ports:
         return []

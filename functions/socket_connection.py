@@ -21,12 +21,12 @@ def socket_connection(ip_address: str, port: int, timeout: float) -> Tuple[int, 
     Attempt to connect to a single TCP port on a target IP.
 
     Args:
-        ip_address (str): Target IPv4 address.
-        port (int): TCP port to scan.
-        timeout (float): Socket timeout in seconds.
+        ip_address (str) : Target IPv4 address.
+        port (int) : TCP port to scan.
+        timeout (float) : Socket timeout in seconds.
 
     Returns:
-        Tuple[int, bool]: (port, True if open, False if closed)
+        Tuple[int, bool] : (port, True if open, False if closed)
 
     Notes:
         - Uses context manager `with` to automatically close the socket.

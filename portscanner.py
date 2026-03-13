@@ -3,13 +3,13 @@ portscanner.py
 
 Main entry point for the Python Port Scanner project.
 
-This script:
+This script :
 - Parses command line arguments (IP, port(s), threads, rate, timeout, output file)
 - Validates the inputs
-- Calls the scanning engine (scan_iterator)
-- Outputs results to the console and JSON file
+- Calls the scanning function (scan_iterator)
+- Outputs results to the console and to a JSON file
 
-CLI-only mode: The interactive mode has been removed for group consistency.
+CLI-only mode : Interactive mode was removed because it introduced several untested edge cases when no CLI arguments were provided. The scanner now runs exclusively via the command-line interface.
 """
 
 from typing import List
@@ -43,12 +43,12 @@ def portscanner(ip_address: str,
     Runs the port scanner on a given IP and list of ports.
 
     Args:
-        ip_address (str): Target IPv4 address.
-        ports (List[int]): List of ports to scan.
-        max_threads (int): Maximum number of concurrent threads.
-        max_connections_per_sec (float): Maximum global connection attempts per second.
-        output_file (str): JSON filename to store results.
-        timeout (float): Socket timeout in seconds.
+        ip_address (str) : Target IPv4 address.
+        ports (List[int]) : List of ports to scan.
+        max_threads (int) : Maximum number of concurrent threads.
+        max_connections_per_sec (float) : Maximum global connection attempts per second.
+        output_file (str) : JSON filename to store results.
+        timeout (float) : Socket timeout in seconds.
 
     Returns:
         None. Results are written to console and output file.
@@ -123,7 +123,7 @@ def main():
         output_file = validate_filename(args.output)
 
     except ValueError as e:
-        print(f"Input Error: {e}")
+        print(f"{e}")
         exit(1)
 
     # Run the scanner
