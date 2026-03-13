@@ -3,7 +3,7 @@ store_to_file.py
 
 Handles storing port scan results to a JSON file.
 
-Features:
+Features :
 - Converts a list of tuples (port, status) into a JSON list of dictionaries.
 - Each dictionary contains: IP address, port number, and status ("OPEN"/"CLOSED").
 - Indented JSON for readability.
@@ -19,15 +19,15 @@ def store_to_file(ip_address: str, scan_result: List[Tuple[int, bool]], filename
     """
     Stores port scan results in a JSON file.
 
-    Args:
+    Args :
         ip_address (str): The scanned IP address.
         scan_result (List[Tuple[int, bool]]): List of (port, status) tuples.
         filename (str): Output JSON file name.
 
-    Returns:
+    Returns :
         None
 
-    Example:
+    Example :
         store_to_file("192.168.1.1", [(21, True), (22, False)], "results.json")
     """
     data = []

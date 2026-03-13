@@ -3,7 +3,7 @@ write_to_console.py
 
 Handles printing port scan results to the console in a formatted table.
 
-Features:
+Features :
 - Shows IP, port, status (OPEN/CLOSED), and common service name if known.
 - Simple, human-readable output for quick scanning feedback.
 """
@@ -45,11 +45,11 @@ def write_to_console(ip_address: str, scan_result: List[Tuple[int, bool]]) -> No
     """
     Prints a formatted table of port scan results to the console.
 
-    Args:
-        ip_address (str): Target IP address.
-        scan_result (List[Tuple[int, bool]]): List of tuples (port, is_open)
+    Args :
+        ip_address (str) : Target IP address.
+        scan_result (List[Tuple[int, bool]]) : List of tuples (port, is_open)
 
-    Example:
+    Example :
         write_to_console("192.168.1.1", [(21, True), (22, False)])
     """
     print("\nScan Results")

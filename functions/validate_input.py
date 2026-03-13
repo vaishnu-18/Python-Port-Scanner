@@ -3,10 +3,9 @@ validate_input.py
 
 Contains functions to validate IP addresses, ports, port ranges, and output filenames.
 
-This module ensures:
+This module ensures :
 - IP addresses are valid IPv4
 - Ports are numeric and within 0-65535
-- Port ranges are properly formatted (start <= end)
 - Output filenames are valid JSON files with allowed characters
 """
 
@@ -32,20 +31,20 @@ def validate_port(input_port: str) -> List[int]:
     input_port = input_port.strip()
 
     if input_port == "":
-        raise ValueError("PORT ERROR: Port number is empty!")
+        raise ValueError("PORT ERROR : Port number is empty !")
 
     try:
         port = int(input_port)
     except ValueError:
         if " " in input_port:
-            raise ValueError("PORT ERROR: Port cannot contain spaces!")
+            raise ValueError("PORT ERROR : Port cannot contain spaces !")
         else:
-            raise ValueError("PORT ERROR: Port must be a number between 0 and 65535!")
+            raise ValueError("PORT ERROR : Port must be a number between 0 and 65535 !")
 
     if port < 0:
-        raise ValueError("PORT ERROR: Port cannot be negative!")
+        raise ValueError("PORT ERROR : Port cannot be negative !")
     elif port > 65535:
-        raise ValueError("PORT ERROR: Port cannot be greater than 65535!")
+        raise ValueError("PORT ERROR : Port cannot be greater than 65535 !")
 
     return [port]
 
@@ -67,28 +66,28 @@ def validate_port_range(input_port: str) -> List[int]:
     ports = [p.strip() for p in input_port.split("-")]
 
     if len(ports) != 2:
-        raise ValueError("PORT ERROR: Port range must be in 'start-end' format!")
+        raise ValueError("PORT ERROR : Port range must be in 'start-end' format !")
     if "" in ports:
-        raise ValueError("PORT ERROR: Ports cannot be empty!")
+        raise ValueError("PORT ERROR : Ports cannot be empty !")
 
     start_port_str, end_port_str = ports
 
     try:
         start_port = int(start_port_str)
     except ValueError:
-        raise ValueError("PORT ERROR: Start port is invalid!")
+        raise ValueError("PORT ERROR : Start port is invalid !")
 
     try:
         end_port = int(end_port_str)
     except ValueError:
-        raise ValueError("PORT ERROR: End port is invalid!")
+        raise ValueError("PORT ERROR : End port is invalid !")
 
     if start_port < 0 or end_port < 0:
-        raise ValueError("PORT ERROR: Ports cannot be negative!")
+        raise ValueError("PORT ERROR : Ports cannot be negative !")
     if start_port > 65535 or end_port > 65535:
-        raise ValueError("PORT ERROR: Ports cannot be greater than 65535!")
+        raise ValueError("PORT ERROR : Ports cannot be greater than 65535 !")
     if start_port > end_port:
-        raise ValueError("PORT ERROR: Start port must be <= end port!")
+        raise ValueError("PORT ERROR : Start port must be <= end port !")
 
     # Generate list of ports
     return list(range(start_port, end_port + 1))
@@ -102,32 +101,32 @@ def validate_ip(ip_address: str) -> str:
     Validate an IPv4 address.
 
     Args:
-        ip_address (str): IP address as a string.
+        ip_address (str) : IP address as a string.
 
     Returns:
         str: Validated IP address.
 
     Raises:
-        ValueError: If the IP is invalid.
+        ValueError : If the IP is invalid.
     """
     ip_address = ip_address.strip()
 
     if " " in ip_address:
-        raise ValueError("IP ERROR: Spaces are not allowed in IP address!")
+        raise ValueError("IP ERROR : Spaces are not allowed in IP address !")
 
     octets = ip_address.split(".")
 
     if len(octets) != 4:
-        raise ValueError("IP ERROR: IP address must have 4 octets!")
+        raise ValueError("IP ERROR : IP address must have 4 octets !")
 
     for o in octets:
         try:
             value = int(o)
         except ValueError:
-            raise ValueError("IP ERROR: Each octet must be numeric!")
+            raise ValueError("IP ERROR : Each octet must be numeric !")
 
         if not (0 <= value <= 255):
-            raise ValueError("IP ERROR: Octets must be between 0 and 255!")
+            raise ValueError("IP ERROR : Octets must be between 0 and 255 !")
 
     return ip_address
 
@@ -143,24 +142,23 @@ def validate_filename(filename: str) -> str:
     Must end with .json.
 
     Args:
-        filename (str): Filename string.
+        filename (str) : Filename string.
 
     Returns:
         str: Validated filename.
 
     Raises:
-        ValueError: If filename is invalid.
+        ValueError : If filename is invalid.
     """
     filename = filename.strip()
 
     if not filename.endswith(".json"):
-        raise ValueError("FILE ERROR: Output file must end with .json")
+        raise ValueError("FILE ERROR : Output file must end with .json !")
 
     if not re.match(r'^[A-Za-z0-9_\-\.]+$', filename):
-        raise ValueError("FILE ERROR: Filename contains invalid characters")
+        raise ValueError("FILE ERROR : Filename contains invalid characters !")
 
     return filename
-
 
 # -----------------------------
 # Example / test (optional)
