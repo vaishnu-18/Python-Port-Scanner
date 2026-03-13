@@ -1,133 +1,156 @@
+"""
+validate_input.py
+
+Contains functions to validate IP addresses, ports, port ranges, and output filenames.
+
+This module ensures:
+- IP addresses are valid IPv4
+- Ports are numeric and within 0-65535
+- Port ranges are properly formatted (start <= end)
+- Output filenames are valid JSON files with allowed characters
+"""
+
 from typing import List
 import re
 
+# -----------------------------
+# Port validation
+# -----------------------------
 def validate_port(input_port: str) -> List[int]:
     """
-    Validate a port input string.
+    Validate a single port input.
 
     Args:
-        input_port (str): Port string (e.g., '80').
+        input_port (str): Port as a string (e.g., '80').
 
     Returns:
-        List[int]: List of port number.
+        List[int]: List containing a single valid port number.
 
     Raises:
-        ValueError: If the input is invalid.
+        ValueError: If the port is invalid.
     """
-
     input_port = input_port.strip()
 
     if input_port == "":
-        raise ValueError("PORT ERROR : Port n° is empty !")
+        raise ValueError("PORT ERROR: Port number is empty!")
 
     try:
         port = int(input_port)
     except ValueError:
         if " " in input_port:
-            raise ValueError("PORT ERROR : Port n° can't contain spaces between characters !")
+            raise ValueError("PORT ERROR: Port cannot contain spaces!")
         else:
-            raise ValueError("PORT ERROR : Port n° must be a valid number between 0 and 65535 !")
-        
+            raise ValueError("PORT ERROR: Port must be a number between 0 and 65535!")
+
     if port < 0:
-        raise ValueError("PORT ERROR : Port n° can't be negative !")
-    
+        raise ValueError("PORT ERROR: Port cannot be negative!")
     elif port > 65535:
-        raise ValueError("PORT ERROR : Port n° can't be bigger than 65535 !")
-    
+        raise ValueError("PORT ERROR: Port cannot be greater than 65535!")
+
     return [port]
+
 
 def validate_port_range(input_port: str) -> List[int]:
     """
-    Validate a port range input string.
+    Validate a range of ports (start-end).
 
     Args:
-        input_port (str): Port range string (e.g., '20-25').
+        input_port (str): Port range as a string (e.g., '20-25').
 
     Returns:
-        List[int]: List of port numbers.
+        List[int]: List of all port numbers in the range.
 
     Raises:
-        ValueError: If the input is invalid.
+        ValueError: If the range is invalid.
     """
-
+    # Split string by dash
     ports = [p.strip() for p in input_port.split("-")]
 
     if len(ports) != 2:
-        raise ValueError("PORT ERROR : Port range needs to be in 'start-end' format !")
-    
-    elif "" in ports:
-        raise ValueError("PORT ERROR : Port n° can't be empty !")
-    
+        raise ValueError("PORT ERROR: Port range must be in 'start-end' format!")
+    if "" in ports:
+        raise ValueError("PORT ERROR: Ports cannot be empty!")
+
     start_port_str, end_port_str = ports
 
     try:
         start_port = int(start_port_str)
     except ValueError:
-        raise ValueError("PORT ERROR : The first port n° is invalid !")
+        raise ValueError("PORT ERROR: Start port is invalid!")
+
     try:
         end_port = int(end_port_str)
     except ValueError:
-        raise ValueError("PORT ERROR : The last port n° is invalid !")
-    
-    if start_port < 0 or end_port < 0:
-        raise ValueError("PORT ERROR : Port n° can't be negative !")
-    
-    elif start_port > 65535 or end_port > 65535:
-        raise ValueError("PORT ERROR : Port n° can't be bigger than 65535 !")
-    
-    elif start_port > end_port:
-        raise ValueError("PORT ERROR : the first port should be less than or equal to the last port !")
-    
-    # Generate list of ports in the range
-    return list(set(range(start_port, end_port + 1)))
+        raise ValueError("PORT ERROR: End port is invalid!")
 
+    if start_port < 0 or end_port < 0:
+        raise ValueError("PORT ERROR: Ports cannot be negative!")
+    if start_port > 65535 or end_port > 65535:
+        raise ValueError("PORT ERROR: Ports cannot be greater than 65535!")
+    if start_port > end_port:
+        raise ValueError("PORT ERROR: Start port must be <= end port!")
+
+    # Generate list of ports
+    return list(range(start_port, end_port + 1))
+
+
+# -----------------------------
+# IP validation
+# -----------------------------
 def validate_ip(ip_address: str) -> str:
     """
     Validate an IPv4 address.
-    
+
     Args:
-        ip_address (str): The IP address string given by the user.
-        
+        ip_address (str): IP address as a string.
+
     Returns:
-        str: The validated IP address.
-    
+        str: Validated IP address.
+
     Raises:
         ValueError: If the IP is invalid.
     """
-    
     ip_address = ip_address.strip()
 
-    #Check for spaces in IP address
     if " " in ip_address:
-        raise ValueError(f"IP ERROR : Spaces between characters are not allowed !")
+        raise ValueError("IP ERROR: Spaces are not allowed in IP address!")
 
-    # Split the IP into a list octets
     octets = ip_address.split(".")
 
-    # Validate the correct number of octets
     if len(octets) != 4:
-        raise ValueError(f"IP ERROR : The IP address should have 4 octets !")
-    
-    # Validate each octet
+        raise ValueError("IP ERROR: IP address must have 4 octets!")
+
     for o in octets:
         try:
             value = int(o)
         except ValueError:
-            raise ValueError(f"IP ERROR : Octets must be numeric !")
-        
+            raise ValueError("IP ERROR: Each octet must be numeric!")
+
         if not (0 <= value <= 255):
-            raise ValueError("IP ERROR: Octets must be between 0 and 255 !")
-    
+            raise ValueError("IP ERROR: Octets must be between 0 and 255!")
+
     return ip_address
 
+
+# -----------------------------
+# Filename validation
+# -----------------------------
 def validate_filename(filename: str) -> str:
     """
-    Validate output filename.
+    Validate the output JSON filename.
 
-    Only allows letters, numbers, underscores, dashes.
-    Must end with .json
+    Only allows letters, numbers, underscores, dashes, and periods.
+    Must end with .json.
+
+    Args:
+        filename (str): Filename string.
+
+    Returns:
+        str: Validated filename.
+
+    Raises:
+        ValueError: If filename is invalid.
     """
-
     filename = filename.strip()
 
     if not filename.endswith(".json"):
@@ -138,38 +161,27 @@ def validate_filename(filename: str) -> str:
 
     return filename
 
-#-----------------TEST------------------
+
+# -----------------------------
+# Example / test (optional)
+# -----------------------------
 if __name__ == "__main__":
-    def run_test():
-        test_case = [
-            ("192.168.0.1", "n"),
-            ("192.168.0.1", "-1"),
-            ("192.168.0.1", "70000"),
-            ("192.168.0.1", "20"),
-            ("192.168.0.1", "1-100-150"),
-            ("192.168.0.1", "1-1c0"),
-            ("192.168.0.1", "0-1025"),
-            ("192.168.0.1", "30-10"),
-            ("192.168.0.1", "20-20"),
-            ("192.168.0.  1", "1-100"),
-            ("192.168.0", "1-100"),
-            ("192.168.0.a", "1-100"),
-            ("192.168.256.1", "1-100"),
-            ("192.168.-1.1", "1-100"),
-            ("192.168.0.1", "10-15")
+    # This is just a small test harness; can be removed in production
+    test_cases = [
+        ("192.168.0.1", "80"),
+        ("192.168.0.1", "20-25"),
+        ("127.0.0.1", "0-65535"),
+        ("256.0.0.1", "80"),   # invalid IP
+        ("192.168.0.1", "-1"), # invalid port
     ]
 
-        for i, (ip, port_range) in enumerate(test_case, start=1): #i = each () element, key = ip, value = port
+    for ip, ports in test_cases:
+        try:
+            ip_valid = validate_ip(ip)
             try:
-                validate_ip(ip)
-            except ValueError as e:
-                print(f"Test {i} with IP {ip} and port(s) {port_range} raised a ValueError: {e}")
-                continue
-            
-            try:
-                validate_port(port_range)
-                print(f"Test {i} with IP {ip} and port(s) {port_range} : {ip} and {port_range} are correct !")
-            except ValueError as e:
-                print(f"Test {i} with IP {ip} and port(s) {port_range} raised a ValueError: {e}")
-
-    run_test()
+                port_list = validate_port_range(ports)
+            except ValueError:
+                port_list = validate_port(ports)
+            print(f"{ip_valid} -> {port_list}")
+        except ValueError as e:
+            print(f"Error for {ip}, {ports}: {e}")

@@ -1,57 +1,57 @@
-from typing import List, Tuple
+"""
+socket_connection.py
+
+Handles the actual TCP connection to a single port.
+
+This module:
+- Attempts to connect to a target IP:port.
+- Uses socket timeouts to avoid hanging.
+- Returns a tuple (port, status) where status is True if open, False if closed.
+"""
+
+from typing import Tuple
 import socket
 import logging
 
-def socket_connection(ip_address: str, port: int, timeout: float) -> tuple[int,bool]:
+# -----------------------------
+# Single port connection
+# -----------------------------
+def socket_connection(ip_address: str, port: int, timeout: float) -> Tuple[int, bool]:
     """
-        Attempts to connect to a single TCP port
+    Attempt to connect to a single TCP port on a target IP.
 
-        Inputs:
-            A target IP address (str)
-            A target TCP port number (int)
+    Args:
+        ip_address (str): Target IPv4 address.
+        port (int): TCP port to scan.
+        timeout (float): Socket timeout in seconds.
 
-        Output:
-            A boolean indicating if the port is open
+    Returns:
+        Tuple[int, bool]: (port, True if open, False if closed)
+
+    Notes:
+        - Uses context manager `with` to automatically close the socket.
+        - Catches name resolution errors and network/socket errors.
     """
-    # Creates a socket (necessary for a network connection)
-    # The arguments specify the format (outside of the scope of this project)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Sets a timeout after which the accempt is interrupted
-    sock.settimeout(timeout)
-
-    # Do a "try" to handle exceptions raised during the connection attempt
     try:
-            # Try to connect to a specified port on a specified ip address
-            # Returns an integer, 0 = success, otherwise => error code
-            result = sock.connect_ex((ip_address, port))
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(timeout)  # Set socket timeout
+            result = sock.connect_ex((ip_address, port))  # 0 if success, otherwise error code
+            is_open = (result == 0)
 
-            # We check the result, if it's 0 the port is open, otherwise it is closed
-            is_open: bool = (result == 0)
+            # Logging for debugging
+            if is_open:
+                logging.debug(f"Finished scanning {ip_address}:{port} - OPEN")
+            else:
+                logging.debug(f"Finished scanning {ip_address}:{port} - CLOSED")
 
-            # Logging the attempt
-            if is_open: logging.debug(f"finished scanning {ip_address} : {port} - port open") 
-            else: logging.debug(f"finished scanning {ip_address} : {port} - port closed")
+            return (port, is_open)
 
-            port_status = (port,is_open)
-
-            return port_status
-    
-    # Exception - Name resolution failed
+    # Name resolution failed
     except socket.gaierror:
-            logging.debug("aborted - name resolution failed")
-            port_status = (port,False)
-            return port_status
-    
-    # Exception - Network/socket error
+        logging.debug(f"Scan aborted for {ip_address}:{port} - name resolution failed")
+        return (port, False)
+
+    # Other network/socket errors
     except OSError:
-            logging.debug("aborted - network/socket error")
-            port_status = (port,False)
-            return port_status
-    finally:
-            sock.close()
-
-
-
-
-
+        logging.debug(f"Scan aborted for {ip_address}:{port} - network/socket error")
+        return (port, False)
