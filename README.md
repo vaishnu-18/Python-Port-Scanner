@@ -143,17 +143,6 @@ Example:
 INFO - Starting port scan on 192.168.1.1 ports 20-100
 INFO - Port scan finished in 0.52 seconds
 ```
-
----
-
-# Testing
-
-Run tests from the project root:
-
-```bash
-pytest
-```
-
 ---
 
 # Limitations
