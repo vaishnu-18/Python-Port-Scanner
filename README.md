@@ -149,8 +149,8 @@ INFO - Port scan finished in 0.52 seconds
 
 - IPv4 only
 - TCP connect scanning only
-- No service detection or banner grabbing
-- No UDP scanning
+- Port state only shows OPEN/CLOSED and not FILTERED/TIMED-OUT
+- File output only supports .json format
 
 ---
 
